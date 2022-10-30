@@ -1,4 +1,5 @@
 mod downloader;
+mod extractor;
 mod grinder;
 
 use anyhow::Error;
