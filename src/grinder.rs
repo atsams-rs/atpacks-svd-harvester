@@ -15,11 +15,44 @@ pub struct AtPacksCollection {
     chips: Rc<Vec<String>>,
     packs: Vec<AtPack>
 }
+
+impl AtPacksCollection {
+    pub fn family(&self) -> &str {
+        &self.family
+    }
+
+    pub fn chips(&self) -> &[String] {
+        self.chips.as_slice()
+    }
+
+    pub fn packs(&self) -> &[AtPack] {
+        &self.packs
+    }
+}
+
 pub struct AtPack {
     family: Rc<String>,
     version: String, // TODO: SemVer
     chips: Rc<Vec<String>>,
     archive: String,
+}
+
+impl AtPack {
+    pub fn family(&self) -> &str {
+        &self.family
+    }
+
+    pub fn version(&self) -> &str { // TODO: SemVer 
+        &self.version
+    }
+
+    pub fn chips(&self) -> &[String] {
+        &self.chips
+    }
+
+    pub fn archive(&self) -> &str {
+        &self.archive
+    }
 }
 
 impl Grinder {

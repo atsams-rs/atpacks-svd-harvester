@@ -53,13 +53,15 @@ fn extract_svd_paths_from_compressed_manifest(manifest: &mut impl Read) -> Resul
     Ok(svds_paths)
 }
 
-fn extract_svds_from_pack(atpack: &mut (impl Read + Seek), destination: &Path) -> Result<Vec<String>> {
+pub fn extract_svds_from_pack(atpack: &mut (impl Read + Seek), destination: &Path) -> Result<Vec<String>> {
     let mut archive = ZipArchive::new(atpack)?;
     let mut manifest = archive.by_name("package.content")?;
 
     let svds_paths = extract_svd_paths_from_compressed_manifest(&mut manifest)?;
 
     drop(manifest);
+
+    let mut successful_svds: Vec<String> = vec![];
 
     for svd_path in svds_paths {
         let mut svd = archive.by_name(&svd_path)?;
@@ -68,14 +70,16 @@ fn extract_svds_from_pack(atpack: &mut (impl Read + Seek), destination: &Path) -
 
         let svd_path = PathBuf::from(svd_path);
         let filename = svd_path.file_name().unwrap(); // TODO: to error if not present
-        let path = destination.join(filename);
+        let path = destination.join(&filename);
 
         let mut file = fs::File::create(path)?; // TODO: extract file name only
         file.write_all(&content.as_bytes())?;
+        
+        successful_svds.push(filename.to_string_lossy().to_string());
     }
 
     
-    Ok(vec![])
+    Ok(successful_svds)
 }
 
 
