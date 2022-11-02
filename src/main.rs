@@ -17,13 +17,17 @@ use crate::grinder::Grinder;
 
 #[derive(ValueEnum, Clone, Debug, Display, EnumVariantNames)]
 enum ChipsFamily {
+    SAME51,
+    SAME52,
+    SAME53,
+    SAME54,
     SAME70,
     SAMS70,
     SAMV70,
     SAMV71,
 }
 
-/// Simple program to greet a person
+/// Harvests SVDs by scrapping ATPACKs repository
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -32,8 +36,8 @@ struct Args {
     repository: Url,
 
     /// Chips family to process (eg. SAMS70)
-    #[arg(short, long, value_enum)]
-    family: Option<ChipsFamily>,
+    #[arg(short, long = "family", value_enum)]
+    families: Vec<ChipsFamily>,
 
     /// Destination directory
     #[arg(short, long)]
@@ -57,11 +61,15 @@ async fn main() -> Result<(), Error> {
     let collections = grinder.process_packs()?;
 
     for collection in collections {
-        println!("* Obtaining ATPACKs for {} family...", collection.family());
+        print!("* Obtaining ATPACKs for {} family...", collection.family());
         if let Some(pack) = collection.packs().first() {
+            if !args.families.is_empty() && !args.families.iter().any(|e| e.to_string() == collection.family()) {
+                println!(" ignoring family not requested.");
+                continue;
+            }
             // TODO: collect ATPACK version into a map file (json?)
 
-            println!("** Obtaining ATPACKS for {}", pack.chips().join(", "));
+            println!(" chips found are {}", pack.chips().join(", "));
 
             let content = downloader.load_file(pack.archive()).await?;
             let mut reader = Cursor::new(content.as_ref());
