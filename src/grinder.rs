@@ -2,6 +2,7 @@ use std::{borrow::Cow, rc::Rc};
 
 use anyhow::Error;
 use lazy_regex::{regex, regex_captures};
+use semver::Version;
 use strum::VariantNames;
 use std::clone::Clone;
 use scraper::{Html, Selector};
@@ -32,7 +33,7 @@ impl AtPacksCollection {
 
 pub struct AtPack {
     family: Rc<String>,
-    version: String, // TODO: SemVer
+    version: Version,
     chips: Rc<Vec<String>>,
     archive: String,
 }
@@ -42,7 +43,7 @@ impl AtPack {
         &self.family
     }
 
-    pub fn version(&self) -> &str { // TODO: SemVer 
+    pub fn version(&self) -> &Version {
         &self.version
     }
 
@@ -98,7 +99,10 @@ impl Grinder {
 
                 match column_selector.next() {
                     Some(first_column) => {
-                        let version = first_column.text().collect();
+                        let text: String = first_column.text().collect();
+                        let version = text.split(char::is_whitespace).next().unwrap(); // TODO: Do better error handling / consider release date
+                        dbg!(&version);
+                        let version = Version::parse(&version).expect("Version should not fail"); // TODO: Can we do better?
                         let _description = column_selector.next().expect("Unable to find second column");
                         let download = release_element.select(&Selector::parse("td>button.download-button").unwrap()).next().expect("Unable to find download button");
                         let archive = download.value().attr("data-link").unwrap().to_string();

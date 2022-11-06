@@ -1,12 +1,14 @@
 mod downloader;
 mod extractor;
 mod grinder;
+mod mapper;
 
 use std::io::Cursor;
 use std::path::PathBuf;
 
 use anyhow::Error;
 use clap::{Parser, ValueEnum};
+use mapper::AtPacks2SVDsVersionMap;
 use reqwest::Url;
 use tokio;
 use strum::{Display, EnumVariantNames}; 
@@ -43,6 +45,10 @@ struct Args {
     #[arg(short, long)]
     destination: Option<PathBuf>,
 
+    /// Mapping file to update or create, contains SVD's source ATPACK version
+    #[arg(short, long)]
+    mapping: Option<PathBuf>,
+
     /// Controls verbosity levels (unsupported at the moment)
     #[clap(flatten)]
     verbose: clap_verbosity_flag::Verbosity,
@@ -60,6 +66,16 @@ async fn main() -> Result<(), Error> {
     let grinder = Grinder::new(&repository);
     let collections = grinder.process_packs()?;
 
+    let mut mappings = if let Some(ref path) = args.mapping {
+        Some(if path.exists() {
+            AtPacks2SVDsVersionMap::load(path)?
+        } else {
+            AtPacks2SVDsVersionMap::new()
+        })
+    } else {
+        None
+    };
+
     for collection in collections {
         print!("* Obtaining ATPACKs for {} family...", collection.family());
         if let Some(pack) = collection.packs().first() {
@@ -67,8 +83,7 @@ async fn main() -> Result<(), Error> {
                 println!(" ignoring family not requested.");
                 continue;
             }
-            // TODO: collect ATPACK version into a map file (json?)
-
+        
             println!(" chips found are {}", pack.chips().join(", "));
 
             let content = downloader.load_file(pack.archive()).await?;
@@ -76,8 +91,21 @@ async fn main() -> Result<(), Error> {
             let svds = extract_svds_from_pack(&mut reader, args.destination.as_ref().unwrap_or(&PathBuf::from(".")))?;
 
             println!("** Downloaded and extracted: {}", svds.join(", "));
+
+            if let Some(ref mut m) = mappings {
+                svds.iter().for_each(|s| {
+                    m.add_or_update(s, pack.version());
+                });
+            };
+
         } else {
             eprintln!("** No ATPACKS for the {} family!", collection.family());
+        }
+    }
+
+    if let Some(ref mut m) = mappings {
+        if let Some(ref path) = args.mapping { // TODO: chaining unstable https://github.com/rust-lang/rust/issues/53667
+            m.save(path)?;
         }
     }
 

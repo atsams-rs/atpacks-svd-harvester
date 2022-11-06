@@ -60,6 +60,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "atpacks-svd-harvester"
+version = "0.9.8"
+dependencies = [
+ "anyhow",
+ "bytes",
+ "clap",
+ "clap-verbosity-flag",
+ "indoc",
+ "lazy-regex",
+ "quick-xml",
+ "reqwest",
+ "scraper",
+ "semver",
+ "serde",
+ "serde_json",
+ "strum",
+ "tempdir",
+ "tokio",
+ "zip",
+]
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -582,26 +604,6 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tracing",
-]
-
-[[package]]
-name = "harvester"
-version = "0.9.8"
-dependencies = [
- "anyhow",
- "bytes",
- "clap",
- "clap-verbosity-flag",
- "indoc",
- "lazy-regex",
- "quick-xml",
- "reqwest",
- "scraper",
- "serde",
- "strum",
- "tempdir",
- "tokio",
- "zip",
 ]
 
 [[package]]
@@ -1642,6 +1644,9 @@ name = "semver"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e25dfac463d778e353db5be2449d1cce89bd6fd23c9f1ea21310ce6e5a1b29c4"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "serde"
