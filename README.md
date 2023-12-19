@@ -4,13 +4,13 @@ The intention of this software is to scrape the website with ATPACKs to obtain S
 
 ## Usage
 
-Install using `cargo install atpacks-svd-harverster` command and then:
+Install using `cargo install atpacks-svd-harvester` command and then:
 ```sh
 atpacks-svd-harvester -r https://packs.download.microchip.com -f same51 -d svd/ -m svd-versions.json
 ```
 to obtain SVD files from the _Microchip's_ website for ATSAME51 family. Omitting `-f` will obtain all SVD for all supported families. They're shown in help text:
 ```sh
-atpacks-svd-harverster --help
+atpacks-svd-harvester --help
 ```
 The `-f` option can be used multiple times.
 
