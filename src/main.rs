@@ -10,14 +10,16 @@ use anyhow::Error;
 use clap::{Parser, ValueEnum};
 use mapper::AtPacks2SVDsVersionMap;
 use reqwest::Url;
+use strum::{Display, EnumVariantNames};
 use tokio;
-use strum::{Display, EnumVariantNames}; 
 
 use crate::downloader::Downloader;
 use crate::extractor::extract_svds_from_pack;
 use crate::grinder::Grinder;
 
 #[derive(ValueEnum, Clone, Debug, Display, EnumVariantNames)]
+#[strum(serialize_all = "SCREAMING-KEBAB-CASE")] // This is tricky for future
+#[allow(non_camel_case_types)]
 enum ChipsFamily {
     SAME51,
     SAME52,
@@ -27,6 +29,9 @@ enum ChipsFamily {
     SAMS70,
     SAMV70,
     SAMV71,
+    SAMV71_RT,
+    SAMRH707,
+    SAMRH71,
 }
 
 /// Harvests SVDs by scrapping ATPACKs repository
@@ -57,11 +62,15 @@ struct Args {
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     let args = Args::parse();
-   
+
     let downloader = Downloader::new(args.repository.clone())?;
     let repository = downloader.load_repository().await?;
 
-    println!("Downloaded {} characters from the {} website .", repository.len(), args.repository); // TODO: make log
+    println!(
+        "Downloaded {} characters from the {} website .",
+        repository.len(),
+        args.repository
+    ); // TODO: make log
 
     let grinder = Grinder::new(&repository);
     let collections = grinder.process_packs()?;
@@ -79,16 +88,24 @@ async fn main() -> Result<(), Error> {
     for collection in collections {
         print!("* Obtaining ATPACKs for {} family...", collection.family());
         if let Some(pack) = collection.packs().first() {
-            if !args.families.is_empty() && !args.families.iter().any(|e| e.to_string() == collection.family()) {
+            if !args.families.is_empty()
+                && !args
+                    .families
+                    .iter()
+                    .any(|e| e.to_string() == collection.family())
+            {
                 println!(" ignoring family not requested.");
                 continue;
             }
-        
+
             println!(" chips found are {}", pack.chips().join(", "));
 
             let content = downloader.load_file(pack.archive()).await?;
             let mut reader = Cursor::new(content.as_ref());
-            let svds = extract_svds_from_pack(&mut reader, args.destination.as_ref().unwrap_or(&PathBuf::from(".")))?;
+            let svds = extract_svds_from_pack(
+                &mut reader,
+                args.destination.as_ref().unwrap_or(&PathBuf::from(".")),
+            )?;
 
             println!("** Downloaded and extracted: {}", svds.join(", "));
 
@@ -97,14 +114,14 @@ async fn main() -> Result<(), Error> {
                     m.add_or_update(s, pack.version());
                 });
             };
-
         } else {
             eprintln!("** No ATPACKS for the {} family!", collection.family());
         }
     }
 
     if let Some(ref mut m) = mappings {
-        if let Some(ref path) = args.mapping { // TODO: chaining unstable https://github.com/rust-lang/rust/issues/53667
+        if let Some(ref path) = args.mapping {
+            // TODO: chaining unstable https://github.com/rust-lang/rust/issues/53667
             m.save(path)?;
         }
     }

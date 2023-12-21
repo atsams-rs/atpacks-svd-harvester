@@ -1,7 +1,7 @@
-use std::{borrow::Cow, rc::Rc};
+use std::{rc::Rc};
 
 use anyhow::Error;
-use lazy_regex::{regex, regex_captures};
+use lazy_regex::{regex_captures};
 use semver::Version;
 use strum::VariantNames;
 use std::clone::Clone;
@@ -75,7 +75,7 @@ impl Grinder {
             let title = title_element.text().collect::<String>();
             // dbg!("* {}", &title);
 
-            let c = regex_captures!("^Microchip (SAM[A-Z0-9]+)", &title);
+            let c = regex_captures!("^Microchip (SAM[A-Z0-9-]+)", &title);
             // take regex, and filter out r`Microchip (SAM[A-Z0-9]+)`
             let family = if let Some((_, sam)) = c {
                 if crate::ChipsFamily::VARIANTS.contains(&sam) {
