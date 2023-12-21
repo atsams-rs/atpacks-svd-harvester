@@ -98,7 +98,7 @@ mod test {
 
     use super::{Content, Includes, Package, Resource, Resources};
     use indoc::indoc;
-    use tempdir::TempDir;
+    use tempfile::TempDir;
 
     #[test]
     fn try_serialize() {
@@ -231,7 +231,7 @@ mod test {
 
     #[test]
     fn check_svd_extraction() {
-        let tempdir = TempDir::new("atpack-svds").expect("Temporary directory creation failed");
+        let tempdir = TempDir::with_prefix("atpack-svds").expect("Temporary directory creation failed");
         let mut archive = File::open("test/data/test.atpack").expect("Test archive not opened");
         let _ =
             super::extract_svds_from_pack(&mut archive, tempdir.path()).expect("Extraction failed");
