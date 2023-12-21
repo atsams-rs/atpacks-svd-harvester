@@ -94,7 +94,6 @@ mod test {
         ffi::OsStr,
         fs::{self, File},
         io::Error as IoError,
-        path::{Path, PathBuf},
     };
 
     use super::{Content, Includes, Package, Resource, Resources};

@@ -18,6 +18,8 @@ use crate::extractor::extract_svds_from_pack;
 use crate::grinder::Grinder;
 
 #[derive(ValueEnum, Clone, Debug, Display, EnumVariantNames)]
+#[strum(serialize_all = "SCREAMING-KEBAB-CASE")] // This is tricky for future
+#[allow(non_camel_case_types)]
 enum ChipsFamily {
     SAME51,
     SAME52,
@@ -27,6 +29,7 @@ enum ChipsFamily {
     SAMS70,
     SAMV70,
     SAMV71,
+    SAMV71_RT,
     SAMRH707,
     SAMRH71,
 }

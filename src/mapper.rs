@@ -40,7 +40,6 @@ impl AtPacks2SVDsVersionMap {
 mod tests {
     use super::AtPacks2SVDsVersionMap;
     use semver::Version;
-    use std::collections::HashMap;
 
     #[test]
     fn version_bookkeeping() {
