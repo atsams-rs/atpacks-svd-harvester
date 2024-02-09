@@ -11,6 +11,7 @@ use zip::ZipArchive;
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
+#[serde(rename = "package")]
 struct Package {
     content: Content,
 }
@@ -22,19 +23,23 @@ struct Content {
 
 #[derive(Debug, Deserialize, Serialize)]
 struct Resources {
+    #[serde(rename = "@target")]
     target: String,
     resource: Vec<Resource>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 struct Resource {
+    #[serde(rename = "@type")]
     r#type: String,
+    #[serde(rename = "@subdir")]
     subdir: String,
     includes: Vec<Includes>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 struct Includes {
+    #[serde(rename = "@pattern")]
     pattern: String,
 }
 
@@ -120,6 +125,7 @@ mod test {
         let xml = quick_xml::se::to_string(&package).unwrap();
 
         println!("XML: {}", xml);
+        assert_eq!(xml, r#"<package><content><resources target="ATSAMV71J19B"><resource type="svd" subdir="samv71b/svd"><includes pattern="ATSAMV71J19B.svd"/></resource></resources></content></package>"#);
     }
 
     #[test]
