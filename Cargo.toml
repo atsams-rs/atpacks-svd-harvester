@@ -13,8 +13,8 @@ bytes = { version = "1.2" }
 clap = { version = "4.0", features = ["derive"] }
 clap-verbosity-flag = { version = "2.0" }
 lazy-regex = { version = "3.1.0" }
-reqwest = { version = "0.11", default-features = false, features = ["cookies", "gzip", "deflate", "multipart", "trust-dns", "rustls-tls-native-roots"] }
-quick-xml = { version = "=0.26.0", features = ["serialize"] } # Bumping up breaks `package.content` deserialization
+reqwest = { version = "0.11.24", default-features = false, features = ["cookies", "gzip", "deflate", "multipart", "trust-dns", "rustls-tls-native-roots"] }
+quick-xml = { version = "0.31.0", features = ["serialize"] } # Bumping up breaks `package.content` deserialization
 scraper = { version = "0.18.1" }
 semver = { version = "1.0", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
